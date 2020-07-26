@@ -18,29 +18,29 @@ class _CreateBlogState extends State<CreateBlog> {
 
   final picker = ImagePicker();
 
+  void uploadBlog() async {
+    if (selectedImage != null) {
+      setState(() {
+        _isLoading = true;
+      });
+      //upload image to firebase storage
+      StorageReference firebaseStorageRef = FirebaseStorage.instance
+          .ref()
+          .child("blogImage")
+          .child("${randomAlphaNumeric(9)}.jpg");
+      final StorageUploadTask task = firebaseStorageRef.putFile(selectedImage);
+      var downloadUrl = await (await task.onComplete).ref.getDownloadURL();
+      print("this is the download URL $downloadUrl");
+      Navigator.pop(context);
+    } else {}
+  }
+
   Future getImage() async {
     var image = await ImagePicker.pickImage(source: ImageSource.gallery);
 
     setState(() {
       selectedImage = image;
     });
-
-    void uploadBlog() async {
-      if (selectedImage != null) {
-        setState(() {
-          _isLoading = true;
-        });
-        //upload image to firebase storage
-        StorageReference firebaseStorageRef = FirebaseStorage.instance
-            .ref()
-            .child("blogImage")
-            .child("${randomAlphaNumeric(9)}.jpg");
-        final StorageUploadTask task =
-            firebaseStorageRef.putFile(selectedImage);
-        var downloadUrl = await (await task.onComplete).ref.getDownloadURL();
-        print("this is the download URL $downloadUrl");
-      } else {}
-    }
   }
 
   @override
@@ -147,6 +147,4 @@ class _CreateBlogState extends State<CreateBlog> {
             ),
     );
   }
-
-  void uploadBlog() {}
 }
