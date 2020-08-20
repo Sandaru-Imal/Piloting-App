@@ -1,4 +1,8 @@
+import 'dart:js';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:piloting_app/services/crud.dart';
 import 'package:piloting_app/views/create_blog.dart';
 
 class HomePage extends StatefulWidget {
@@ -7,6 +11,36 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  CrudMethods crudMethods = new CrudMethods();
+
+  QuerySnapshot blogSnapshot;
+
+  Widget BlogsList() {
+    return Container(
+      child: Column(
+        children: <Widget>[
+          ListView.builder(
+            itemCount: blogSnapshot.documents.length,
+          itemBuilder: (context,index){
+            return BlogsTile(
+              authorName: blogSnapshot.documents[index].data['authorName']);
+          },
+          ),
+          ],
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    crudMethods.getData().then((result) {
+      blogSnapshot = result;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,6 +75,34 @@ class _HomePageState extends State<HomePage> {
             )
           ],
         ),
+      ),
+    );
+  }
+}
+
+class BlogsTile extends StatelessWidget {
+  String imgUrl, title, description, authorName;
+  BlogsTile(
+      {@required this.imgUrl, this.title, this.description, this.authorName});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Stack(
+        children: <Widget>[
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: Image.network(imgUrl)),
+          Container(
+            height: 150,
+            decoration: BoxDecoration(color: Colors.black45.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(6)),
+          ),
+          Container(child: Column(children: <Widget>[
+           Text(title),
+           Text(description),
+          Text(authorName),
+          ],),
+        ],
       ),
     );
   }
