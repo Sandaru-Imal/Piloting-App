@@ -1,5 +1,3 @@
-import 'dart:js';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:piloting_app/services/crud.dart';
@@ -17,17 +15,29 @@ class _HomePageState extends State<HomePage> {
 
   Widget BlogsList() {
     return Container(
-      child: Column(
-        children: <Widget>[
-          ListView.builder(
-            itemCount: blogSnapshot.documents.length,
-          itemBuilder: (context,index){
-            return BlogsTile(
-              authorName: blogSnapshot.documents[index].data['authorName']);
-          },
-          ),
-          ],
-      ),
+      child: blogSnapshot != null
+          ? Column(
+              children: <Widget>[
+                ListView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: blogSnapshot.documents.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    return BlogsTile(
+                      authorName:
+                          blogSnapshot.documents[index].data['authorName'],
+                      title: blogSnapshot.documents[index].data["title"],
+                      description: blogSnapshot.documents[index].data["desc"],
+                      imgUrl: blogSnapshot.documents[index].data["imgUrl"],
+                    );
+                  },
+                )
+              ],
+            )
+          : Container(
+              alignment: Alignment.center,
+              child: CircularProgressIndicator(),
+            ),
     );
   }
 
@@ -60,7 +70,7 @@ class _HomePageState extends State<HomePage> {
         ),
         backgroundColor: Colors.transparent,
       ),
-      body: Container(),
+      body: BlogsList(),
       floatingActionButton: Container(
         padding: EdgeInsets.symmetric(vertical: 10),
         child: Row(
@@ -87,21 +97,45 @@ class BlogsTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: EdgeInsets.only(bottom: 16),
+      height: 150,
       child: Stack(
         children: <Widget>[
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
-            child: Image.network(imgUrl)),
-          Container(
-            height: 150,
-            decoration: BoxDecoration(color: Colors.black45.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(6)),
+            child: Image.network(
+              imgUrl,
+              width: MediaQuery.of(context).size.width,
+              fit: BoxFit.cover,
+            ),
           ),
-          Container(child: Column(children: <Widget>[
-           Text(title),
-           Text(description),
-          Text(authorName),
-          ],),
+          Container(
+            height: 170,
+            decoration: BoxDecoration(
+              color: Colors.black45.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+          Container(
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Text(title,
+                    style:
+                        TextStyle(fontSize: 25, fontWeight: FontWeight.w500)),
+                SizedBox(height: 4),
+                Text(
+                  description,
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w400),
+                ),
+                SizedBox(height: 4),
+                Text(authorName),
+                SizedBox(height: 4),
+              ],
+            ),
+          )
         ],
       ),
     );
